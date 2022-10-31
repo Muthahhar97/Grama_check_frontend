@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "@asgardeo/auth-react";
+import Status from "./Status";
 
 const Apply = () => {
   const { state, getIDToken, signIn, signOut } = useAuthContext();
@@ -9,6 +10,7 @@ const Apply = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [isClicked,setIsClicked]=useState(false);
   
 
   const getAccessToken = () => {
@@ -64,6 +66,8 @@ const Apply = () => {
   useEffect(()=>{
     if(state.isAuthenticated){
         getAccessToken();
+    }else{
+      localStorage.clear();
     }
   },[state.isAuthenticated]);
 
@@ -151,9 +155,21 @@ const Apply = () => {
         {isPending ? (
           <button disabled>Submitting....</button>
         ) : (
-          <button>Submit</button>
+          <button onClick={()=>setIsClicked(false)}>Submit</button>
         )}
       </form>
+      <br /><br/>
+
+      {isPending ? (
+          <button disabled>Checking...</button>
+        ) : (
+          <button onClick={()=>setIsClicked(true)}>Get Certificate</button>
+        )}
+
+      {isClicked && <div>{localStorage.getItem('success')=="true"? <Status name={name} nic={nic} address={address}/>:localStorage.getItem('msg')=="NIC is not Valid"?<p>Entered NIC is Ivalid. Please Check once again</p>:localStorage.getItem('msg')=="Police Validation Failed"?<p>Police Validation Failed. You have Criminal Activities</p>:<p>Address Validation Failed. Please enter a valid address</p>}</div>}
+
+      {/* {isClicked && <div>{localStorage.getItem('success')?<Status/>:<div>{localStorage.getItem('msg')=="NIC is not Valid"?<p>Entered Nic</p>}</div>}</div>} */}
+
     </div>
   );
 };
